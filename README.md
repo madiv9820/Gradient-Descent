@@ -47,7 +47,7 @@ Feel free to create a pull request with the additional implementation.
 - **score(x, y)** :- This function calculates the **coefficient of determination** for the predicted values and actual values.
     - **x (numpy.ndarray)** :- Values of the features for which values need to be predicte and compare
     - **y (numpy.ndarray)** :- Actual Output, with the help of which coefficient of determination or score will be calculated.
-    - **Coefficient of Determination** :- 
+    - **Coefficient of Determination** :-
     ![Alt Text](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQO5f-66JNgxG7pitR1HcnBZW5Hdrx6o7jrEYM2uzysCupWp4SNGXhEUCCbSDVR1BkKwAo&usqp=CAU)
     - returns a **float** value
 
