@@ -12,7 +12,7 @@
 import numpy    
 
 # Defining a class Linear Regression
-class Linear_Regression:
+class LinearRegression:
 
     # Constructor
     def __init__(self, 
@@ -32,10 +32,11 @@ class Linear_Regression:
         self.__iterations = iterations
         self.__alpha = alpha
         self.__stoppage = stoppage
-        self.__coef_ = None
+        self.__constants_ = None
         self.coef_ = None
         self.intercept_ = None
-
+        self.logs = []
+        
     # String representation of the class
     def __repr__(self) -> str:
         return ('gradient_descent.Linear_Regression' + 
@@ -53,7 +54,8 @@ class Linear_Regression:
             Cost = Mean from i = 1 to n 
             (y[ith row] - (m1 *  x1[ith row] + m2 * x2[ith row] + ....... + xn[ith row]) ** 2)
         '''
-        return numpy.mean([((y[row] - m * x[row].sum()) ** 2) for row in range(x.shape[0])])
+        return numpy.mean([((y[row] - ((m * x[row]).sum())) ** 2) for row in range(x.shape[0])])
+     
     
     # Gradient function to find the current slope of each value in m 
     def __step_gradient_descent(self, 
@@ -62,7 +64,7 @@ class Linear_Regression:
                                 m: numpy.ndarray
                             ) -> numpy.ndarray:
         # Taking slope to be zero
-        slopes = numpy.array([0] * m.shape[0], dtype = float)
+        slopes = numpy.zeros(m.shape[0], dtype = float)
         
         for index in range(slopes.shape[0]):
             '''
@@ -78,43 +80,42 @@ class Linear_Regression:
     # Gradient Descent function to train the algorithm
     def __gradient_descent(self, x: numpy.ndarray, y: numpy.ndarray) -> None:
         # Intialising all the coefficients of each feature = 0
-        self.__coef_ = numpy.array([0] * x.shape[1], dtype = float)
-        
-        # Assuiming cost to train
-        previous_Cost = 10000000
+        self.__constants_ = numpy.zeros(x.shape[1], dtype = float)
         
         # Training all the algorithm
         for count in range(self.__iterations):
             # Getting slope with the help of step gradient descent
-            slopes = self.__step_gradient_descent(x, y, self.__coef_)
+            slopes = self.__step_gradient_descent(x, y, self.__constants_)
             
             '''
                 New Coef = Current_Coef - alpha * Slopes
                 Slopes = d(Cost)/d(Slope)
             '''
-            new_coef = self.__coef_ - self.__alpha * slopes
+            new_coef = self.__constants_ - self.__alpha * slopes
             
-            # Calculating the cost with new coefficient
+            # Calculating the cost with new coefficient and previous coefficient
+            previous_Cost = self.__cost(x, y, self.__constants_)
             current_Cost = self.__cost(x, y, new_coef)
 
-            # print('Iteration:', count, 'Current Cost:', current_Cost, end = ' ' )
-            # print('Previous Cost:', previous_Cost, 'Difference:', abs(current_Cost - previous_Cost), end = ' ')
-            # print('Alpha:', self.__alpha)
+            
+            log = (f"Iteration: {count+1}, Previous Cost: {previous_Cost}, " +
+                    f"Current Cost: {current_Cost}, Difference: " +
+                    f"{abs(previous_Cost - current_Cost)}, Alpha: {self.__alpha}")
+            
+            self.logs.append(log)
 
             '''
                 If current_Cost > previous_Cost, means value of alpha is very high,
                 we need to decrease the value of alpha
             '''
-            if current_Cost > previous_Cost: self.__alpha /= 10
-            else: self.__coef_ = new_coef   # Updating the coefficient
+            if count % 100 == 0: self.__alpha *= 2
+            if current_Cost > previous_Cost: self.__alpha /= 2
+            else: self.__constants_ = new_coef   # Updating the coefficient
 
             # If difference between the cost is too low, 
             # we can stop training the algorithm
             if abs(current_Cost - previous_Cost) < self.__stoppage: break
             
-            # Updating previous cost
-            previous_Cost = current_Cost
-
     # A fit function to train the algorithm
     def fit(self, x: numpy.ndarray, y: numpy.ndarray) -> None:
         '''
@@ -139,13 +140,13 @@ class Linear_Regression:
         self.__gradient_descent(x, y)
 
         # Seggregating Coefficient and intercept
-        self.coef_ = self.__coef_[:-1]
-        self.intercept_ = self.coef_[-1]
+        self.coef_ = self.__constants_[:-1]
+        self.intercept_ = self.__constants_[-1]
 
     # A function to predict values to provide values of features
     def predict(self, x: numpy.ndarray) -> numpy.ndarray:
         # If fit function has not run yet
-        if self.__coef_ is None: return numpy.array([])
+        if self.__constants_ is None: return numpy.array([])
 
         # Since we need to m = 1 to finding intercept (C)
         # Appending 1 to each row in y 
@@ -154,16 +155,16 @@ class Linear_Regression:
         # We have already have coef we can find value
         # i.e. y = mx + C, since value of C is already
         # included in M, so y = mx
-        return numpy.array([(x[row] * self.__coef_).sum() for row in range(x.shape[0])])
+        return numpy.array([(x[row] * self.__constants_).sum() for row in range(x.shape[0])])
 
     # A function to determine coefficient of determination or score
     def score(self, x: numpy.ndarray, y: numpy.ndarray) -> float:
-        if self.__coef_ is None: return float('inf')
+        if self.__constants_ is None: return float('inf')
         y_pred = self.predict(x)
-        return 1 - ((y - y_pred) ** 2).sum() / ((y - y.mean()) ** 2).sum()
+        return float(1 - ((y - y_pred) ** 2).sum() / ((y - y.mean()) ** 2).sum())
 
     # A function to get the cost
     def cost(self, x: numpy.ndarray, y: numpy.ndarray) -> float:
-        if self.__coef_ is None: return float('inf')
+        if self.__constants_ is None: return float('inf')
         y_pred = self.predict(x)
         return ((y - y_pred) ** 2).mean()
