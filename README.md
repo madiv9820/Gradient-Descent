@@ -48,7 +48,7 @@ Feel free to create a pull request with the additional implementation.
     - **x (numpy.ndarray)** :- Values of the features for which values need to be predicte and compare
     - **y (numpy.ndarray)** :- Actual Output, with the help of which coefficient of determination or score will be calculated.
     - **Coefficient of Determination** :- 
-    ![Alt Text](https://editor.analyticsvidhya.com/uploads/978019.PNG)
+    ![Alt Text](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQO5f-66JNgxG7pitR1HcnBZW5Hdrx6o7jrEYM2uzysCupWp4SNGXhEUCCbSDVR1BkKwAo&usqp=CAU)
     - returns a **float** value
 
 - **cost(x, y)** :- This function calculates the cost or error between predict value and actual values.
