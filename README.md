@@ -54,8 +54,7 @@ Feel free to create a pull request with the additional implementation.
 - **cost(x, y)** :- This function calculates the cost or error between predict value and actual values.
     - **x (numpy.ndarray)** :- Values for which algorithm, predict the output
     - **y (numpy.ndarray)** :- Actual Outputs, using these cost will be calculated
-    - **Cost** :- 
-    
+    - **Cost** :-    
     ![Alt Text](https://editor.analyticsvidhya.com/uploads/272996.PNG)
     - returns a **float** value, average of all the errors with the corresponding values
 - **LinearRegression.coef_ (numpy.ndarray)** :- All the coefficients of the features calculated by the algorithm.
