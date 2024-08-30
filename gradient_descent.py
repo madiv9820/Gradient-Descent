@@ -54,7 +54,7 @@ class LinearRegression:
             Cost = Mean from i = 1 to n 
             (y[ith row] - (m1 *  x1[ith row] + m2 * x2[ith row] + ....... + xn[ith row]) ** 2)
         '''
-        return numpy.mean([((y[row] - ((m * x[row]).sum())) ** 2) for row in range(x.shape[0])])
+        return numpy.mean((y - numpy.dot(x, m)) ** 2)
      
     
     # Gradient function to find the current slope of each value in m 
@@ -63,17 +63,8 @@ class LinearRegression:
                                 y: numpy.ndarray, 
                                 m: numpy.ndarray
                             ) -> numpy.ndarray:
-        # Taking slope to be zero
-        slopes = numpy.zeros(m.shape[0], dtype = float)
-        
-        for index in range(slopes.shape[0]):
-            '''
-                M is the no of rows
-                Slope[index] = d(Cost)/d(Slope[index])
-                            = sum for i from 1 to M ((2 / M) * (m * x[i]) * (-x[i, index]))
-            '''
-            for row in range(x.shape[0]):
-                slopes[index] += ((2/x.shape[0]) * (y[row] - (m * x[row]).sum()) * (-x[row, index]))
+        errors = y - numpy.dot(x, m)
+        slopes = (-2/x.shape[0]) * numpy.dot(x.T, errors)
 
         return slopes   # Returning all the slopes
     
@@ -134,7 +125,7 @@ class LinearRegression:
             coef = [m1, m2, m3, ......, mn, C]
             x = [x1, x2, x3, ........, xn, 1]
         '''
-        x = numpy.append(x, [[1]] * x.shape[0], axis = 1)
+        x = numpy.append(x, numpy.ones((x.shape[0], 1)), axis = 1)
 
         # Training the algorithm using gradient descent
         self.__gradient_descent(x, y)
@@ -146,25 +137,28 @@ class LinearRegression:
     # A function to predict values to provide values of features
     def predict(self, x: numpy.ndarray) -> numpy.ndarray:
         # If fit function has not run yet
-        if self.__constants_ is None: return numpy.array([])
+        if self.__constants_ is None: raise RuntimeError('Model has not been fitted yet.')
 
         # Since we need to m = 1 to finding intercept (C)
         # Appending 1 to each row in y 
-        x = numpy.append(x, [[1]] * x.shape[0], axis = 1)
+        x = numpy.append(x, numpy.ones((x.shape[0], 1)), axis = 1)
 
         # We have already have coef we can find value
         # i.e. y = mx + C, since value of C is already
         # included in M, so y = mx
-        return numpy.array([(x[row] * self.__constants_).sum() for row in range(x.shape[0])])
+        return numpy.dot(x, self.__constants_)
 
     # A function to determine coefficient of determination or score
     def score(self, x: numpy.ndarray, y: numpy.ndarray) -> float:
-        if self.__constants_ is None: return float('inf')
+        if self.__constants_ is None: raise RuntimeError('Model has not been fitted yet.')
         y_pred = self.predict(x)
-        return float(1 - ((y - y_pred) ** 2).sum() / ((y - y.mean()) ** 2).sum())
+        total_Variance = numpy.sum((y - numpy.mean(y)) ** 2)
+        explained_Variance = numpy.sum((y - y_pred) ** 2)
+
+        return 1 - explained_Variance/total_Variance
 
     # A function to get the cost
     def cost(self, x: numpy.ndarray, y: numpy.ndarray) -> float:
-        if self.__constants_ is None: return float('inf')
+        if self.__constants_ is None: raise RuntimeError('Model has not been fitted yet.')
         y_pred = self.predict(x)
-        return ((y - y_pred) ** 2).mean()
+        return numpy.mean((y - y_pred) ** 2)
